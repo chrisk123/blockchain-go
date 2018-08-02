@@ -54,6 +54,35 @@ func TestQueueBasics(t *testing.T) {
 	}
 }
 
+// Test that the work queue is actually doing things concurrently in the right way.
+func TestQueueConcurrency(t *testing.T) {
+	nTasks := uint(20)
+	nWorkers := uint(4) // Should be easy to parallelize the .Sleep call, regardless of number of cores.
+	nRun := uint64(0)   // not used in this test
+
+	q := Create(nWorkers, nTasks)
+	for i := uint(0); i < nTasks; i++ {
+		q.Enqueue(newWorker(&nRun))
+	}
+
+	// Time how long it takes to get all of the results out.
+	start := time.Now()
+	for i := uint(0); i < nTasks; i++ {
+		<-q.Results
+	}
+	end := time.Now()
+
+	// Time taken should be close to what we expect
+	totalTime := float64(end.Sub(start))
+	targetTime := float64(delay * time.Duration(nTasks/nWorkers))
+	if totalTime >= targetTime*1.5 {
+		t.Error("Queue appears to not be running tasks concurrently: nWorkers tasks should be happening in parallel.")
+	}
+	if totalTime < targetTime*0.9 {
+		t.Error("Queue appears to be running too concurrently: it should only start nWorkers concurrent tasks.")
+	}
+}
+
 // Test that the work queue stops processing jobs when asked to do so.
 func TestQueueStop(t *testing.T) {
 	nTasks := uint(20)
