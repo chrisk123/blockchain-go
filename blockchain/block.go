@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// DONT TOUCH
+//Block struct: Contains attributes of a Block
 type Block struct {
 	Generation uint64 //index
 	Difficulty uint8  //number of null bytes at end of hash
@@ -75,7 +75,6 @@ func (blk Block) ValidHash() bool {
 	return res
 }
 
-// DONT TOUCH
 // SetProof function: Set the proof-of-work and calculate the block's "true" hash.
 func (blk *Block) SetProof(proof uint64) {
 	blk.Proof = proof
