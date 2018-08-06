@@ -23,17 +23,7 @@ func Initial(difficulty uint8) Block {
 	var initialBlock Block
 	initialBlock.Generation = 0
 	initialBlock.Difficulty = difficulty
-	// initialBlock.Data = ""
-	// initialBlock.Hash = initialBlock.CalcHash()
-	// initialBlock.PrevHash = []byte{'\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'}
 	initialBlock.PrevHash = make([]byte, 32)
-	// Generation: 0,
-	// Difficulty: difficulty,
-	// Data:       "",
-	// Proof: 242278,
-	// PrevHash: []byte{'\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'},
-	// Hash: initialBlock.CalcHash()}
-
 	return initialBlock
 }
 
@@ -71,7 +61,7 @@ func (blk Block) ValidHash() bool {
 
 	//Initialize validity array containing all null
 	for i := 0; i < d; i++ {
-		validityBytes[i] = 0
+		validityBytes[i] = '\x00'
 	}
 
 	//Select only the last d bytes of hashed and check for null
