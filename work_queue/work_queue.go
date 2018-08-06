@@ -15,6 +15,11 @@ type WorkQueue struct {
 func Create(nWorkers uint, maxJobs uint) *WorkQueue {
 	q := new(WorkQueue)
 	// TODO: initialize struct; start nWorkers workers as goroutines
+	for i:=0;i<nWorkers;i++{
+		go func() {
+			
+		}
+	}
 	return q
 }
 
