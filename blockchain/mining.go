@@ -13,13 +13,33 @@ type MiningResult struct {
 // Mine the range of proof values, by breaking up into chunks and checking
 // "workers" chunks concurrently in a work queue. Should return shortly after a result
 // is found.
-// MineRange function
+// MineRange function: Calculates range of proof values until a valid hash is found
 func (blk Block) MineRange(start uint64, end uint64, workers uint64, chunks uint64) MiningResult {
 	// TODO: spawn concurrent goroutines and send results back on a channel
-	var res uint64
-	var miningRes MiningResult
-	blk.SetProof(res)
-	return miningRes
+	var miningResult MiningResult
+	miningBlk := blk
+
+	var mineChannel = make(chan uint64, workers)
+	//Split mining range [start,end] into chunks and calculate concurrently
+
+	//Mine proof values in range [start, end]
+	for i := start; i < end; i++ {
+
+		//Assign block the next proof value and check validity of hash
+		miningBlk.Proof = i
+		miningBlk.CalcHash()
+
+		//Check if proof results in a valid hash and return result if so
+		if miningBlk.ValidHash() {
+			miningResult.Proof = i
+			mineChannel <- miningResult.Proof
+			miningResult.Found = true
+			return miningResult
+		}
+	}
+
+	// blk.SetProof(res)
+	return miningResult
 }
 
 // DONT TOUCH
