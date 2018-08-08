@@ -4,6 +4,8 @@ import "fmt"
 
 type miningWorker struct {
 	// TODO. Should implement work_queue.Worker
+	mineRange   Chunk
+	minedResult MiningResult
 }
 
 // DONT TOUCH
@@ -29,24 +31,16 @@ func (blk Block) MineRange(start uint64, end uint64, workers uint64, chunks uint
 
 	var mineChannel = make(chan uint64, workers)
 	//Split mining range [start,end] into chunks and calculate concurrently
-	chunked := CalcChunks(start,end,chunks)
+	chunked := CalcChunks(start, end, chunks)
 
-
-	//While Jobs in Queue exist, pass chunk down channel for workers to hash 
-		go func() {
-			//Pass chunked[i] range of values to the job queue
-			chunked[:]
-		}
-	
-	
-	// for i := 0; i < int(chunks-1); i++ {
-	// 	next_chunk :=
-	// }
-	// jobChunks :=
+	//While Jobs in Queue exist, pass chunk down channel for workers to hash
 
 	//Slowest situation, 1 worker mining entire range
 	if workers == 1 && chunks == 1 {
 		for i := start; i < end; i++ {
+			newMiner := new(miningWorker)
+			newMiner.mineRange.Start = start
+			newMiner.mineRange.End = end
 			//Assign block the next proof value and check validity of hash
 			miningBlk.Proof = i
 			miningBlk.CalcHash()
@@ -58,9 +52,23 @@ func (blk Block) MineRange(start uint64, end uint64, workers uint64, chunks uint
 				return miningResult
 			}
 		}
-
+	} else if workers > 1 && chunks >= 1 {
+		for i := uint64(0); i < chunks; i++ {
+			newMiner := new(miningWorker)
+			newMiner.mineRange.Start = chunked[i].Start
+			newMiner.mineRange.End = chunked[i].End
+			//Assign block the next proof value and check validity of hash
+			miningBlk.Proof = i
+			miningBlk.CalcHash()
+			//Check if proof results in a valid hash and return result if so
+			if miningBlk.ValidHash() {
+				miningResult.Proof = i
+				mineChannel <- miningResult.Proof
+				miningResult.Found = true
+				return miningResult
+			}
+		}
 	}
-	// blk.SetProof(res)
 	return miningResult
 }
 
