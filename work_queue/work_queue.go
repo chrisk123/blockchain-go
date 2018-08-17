@@ -16,8 +16,11 @@ func Create(nWorkers uint, maxJobs uint) *WorkQueue {
 	q := new(WorkQueue)
 
 	// TODO: initialize struct; start nWorkers workers as goroutines
+	q.Jobs = make(chan Worker, maxJobs)
+	q.Results = make(chan interface{}, nWorkers)
+	q.StopRequests = make(chan int, nWorkers)
+	q.NumWorkers = nWorkers
 	for i := 0; i < int(nWorkers); i++ {
-		q.NumWorkers++
 		go q.worker()
 	}
 	return q
